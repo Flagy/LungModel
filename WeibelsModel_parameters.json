@@ -1,0 +1,19 @@
+{
+	"generation": [{
+			"bifurcationId": "0",
+			"name": "trachea",
+			"diameter": 0.018,
+			"length": 0.12,
+			"numberOfIdentities": 1,
+			"totalArea": 2.54
+		},
+		{
+			"bifurcationId": "1",
+			"name": "bronchi",
+			"diameter": 0.0122,
+			"length": 0.048,
+			"numberOfIdentities": 2,
+			"totalArea": 2.33
+		}
+	]
+}
