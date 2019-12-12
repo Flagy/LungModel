@@ -17,7 +17,7 @@ class EasyBroncho(object):
             self.generationNumber = generationNumber
             self.length = length
             self.diameter = 1.8*0.5**(self.generationNumber/3.0)
-            self.resistance = 
+            self.resistance = (8*eta*self.length)/(pi*(self.diameter/2)**4) #Poiseuille resistance
 
 
 if __name__ == "__main__":
