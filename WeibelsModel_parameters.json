@@ -4,50 +4,50 @@
         [{
 			"bifurcationId": "0",
 			"name": "trachea",
-			"diameter": 1.8,
-			"length": 12.0,
+			"diameter": 1.8e-2,
+			"length": 12.0e-2,
 			"numberOfIdentities": 1,
-			"totalArea": 2.54
+			"totalArea": 2.54e-4
 		},
 		{
 			"bifurcationId": "1",
 			"name": "bronchi",
-			"diameter": 1.22,
-			"length": 4.8,
+			"diameter": 1.22e-2,
+			"length": 4.8e-2,
 			"numberOfIdentities": 2,
-			"totalArea": 2.33
+			"totalArea": 2.33e-4
         },
 		{
 			"bifurcationId": "2",
 			"name": "bronchi",
-			"diameter": 0.83,
-			"length": 1.9,
+			"diameter": 0.83e-2,
+			"length": 1.9e-2,
 			"numberOfIdentities": 4,
-			"totalArea": 2.13
+			"totalArea": 2.13e-4
         },
 		{
 			"bifurcationId": "3",
 			"name": "bronchi",
-			"diameter": 0.56,
-			"length": 0.8,
+			"diameter": 0.56e-2,
+			"length": 0.8e-2,
 			"numberOfIdentities": 8,
-			"totalArea": 2.00
+			"totalArea": 2.00e-4
         },        
 		{
 			"bifurcationId": "4",
 			"name": "bronchioles",
-			"diameter": 0.45,
-			"length": 1.3,
+			"diameter": 0.45e-2,
+			"length": 1.3e-2,
 			"numberOfIdentities": 16,
-			"totalArea": 2.48
+			"totalArea": 2.48e-4
         },
 		{
 			"bifurcationId": "5",
 			"name": "terminal bronchioles",
-			"diameter": 0.35,
-			"length": 1.07,
+			"diameter": 0.35e-2,
+			"length": 1.07e-2,
 			"numberOfIdentities": 32,
-			"totalArea": 3.11
+			"totalArea": 3.11e-4
         }
 	]
 }
