@@ -22,11 +22,14 @@ class EasyLung(EasyBroncho):
         self.Vc0 = Vc0
         return True
     
-    def model(self, Vc, t):
-        self.dVcdt = (1/(self.getTau()))*(self.Vg - Vc)
-        return self.dVcdt
+    def model(self, y, t):
+        iter = np.nditer(self.Vg)
+        Vg = next(iter)
+        dydt = -(1/self.Tau)*(y - Vg)
+        return dydt
 
     def solveModel(self):
+        self.getTau()
         sol = odeint(self.model, self.Vc0, self.t)
         return sol
 
@@ -41,19 +44,19 @@ class EasyLung(EasyBroncho):
 
 
     def getTau(self):
-        return self.resistance*self.compliance
+        self.Tau = self.resistance*self.compliance
+        return self.Tau
 
 if __name__ == "__main__":
     lung = EasyLung(2)
     lung.compliance = 0.8
     t0 = 0
-    t_int = 1
-    tf = 100
-    t = np.linspace(t0, t_int, tf)
-    Vg0 = 2
-    f = 1
-    Vg = Vg0*np.sin(2*pi*f*t) - Vg0
-    Vc0 = np.zeros((len(t), ))
+    tf = 20000
+    t = np.linspace(t0, tf)
+    Vg0 = 200
+    f = 100
+    Vg = Vg0*np.sin(2*pi*f*t)
+    Vc0 = 5
     lung.setModelParams(t, Vg, Vc0)
     y = lung.solveModel()
 
