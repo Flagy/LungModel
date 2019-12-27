@@ -23,13 +23,22 @@ class EasyLung(EasyBroncho):
         return True
     
     def model(self, y, t):
-        iter = np.nditer(self.Vg)
-        Vg = next(iter)
-        dydt = -(1/self.Tau)*(y - Vg)
-        return dydt
+        # Creating the iterators
+        iterVg = np.nditer(self.Vg)
+        iterIg = np.nditer(self.Ig)
+
+        # Using the iterators. This is for how it works the function odeint of scupy.integrate
+        Vg = next(iterVg)
+        Ig = next(iterIg)
+
+        # Definition of the model
+        tau1 = self.getTau(gen = 1)
+        tau2 = self.getTau(gen = 2)
+        dy1dt = 1/self.tau1(Vg - self.R[0]*Ig) - 1/self.tau1*y
+        dy2dt = 1/self.tau2(Vg - self.R[0]*Ig) - 1/self.tau2*y
+        return [dy1dt, dy2dt]
 
     def solveModel(self):
-        self.getTau()
         sol = odeint(self.model, self.Vc0, self.t)
         return sol
 
