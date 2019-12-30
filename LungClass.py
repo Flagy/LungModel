@@ -14,12 +14,15 @@ class EasyLung(EasyBroncho):
     def __init__(self, numberOfGen):
         if numberOfGen < 0 or numberOfGen > EasyLung.totGenerations:
             raise ValueError
-        super().__init__(generationNumber = numberOfGen, paramsFromJson = True)
+        self.bronchi = []
+        for gen in range(numberOfGen + 1):
+            self.bronchi.append(EasyBroncho(generationNumber = numberOfGen, paramsFromJson = True))
     
     def setModelParams(self, t, Vg, Vc0):
         self.t = t
         self.Vg = Vg
-        self.Vc0 = Vc0
+        self.Ig = self.Vg / self.bronchi[0].resistance
+        self.Vc0 = [Vc0, Vc0]
         return True
     
     def model(self, y, t):
@@ -27,16 +30,15 @@ class EasyLung(EasyBroncho):
         iterVg = np.nditer(self.Vg)
         iterIg = np.nditer(self.Ig)
 
-        # Using the iterators. This is for how it works the function odeint of scupy.integrate
+        # Using the iterators. This is for how it works the function odeint of scipy.integrate
         Vg = next(iterVg)
         Ig = next(iterIg)
 
         # Definition of the model
-        tau1 = self.getTau(gen = 1)
-        tau2 = self.getTau(gen = 2)
-        dy1dt = 1/self.tau1(Vg - self.R[0]*Ig) - 1/self.tau1*y
-        dy2dt = 1/self.tau2(Vg - self.R[0]*Ig) - 1/self.tau2*y
-        return [dy1dt, dy2dt]
+        dVc1dt = 1/self.bronchi[1].getTau()*(Vg - self.bronchi[0].resistance*Ig) - 1/self.bronchi[1].getTau()*y
+        dVc2dt = 1/self.bronchi[2].getTau()*(Vg - self.bronchi[0].resistance*Ig) - 1/self.bronchi[2].getTau()*y
+        dVcdt = [dVc1dt[0], dVc2dt[0]]
+        return dVcdt
 
     def solveModel(self):
         sol = odeint(self.model, self.Vc0, self.t)
@@ -51,14 +53,10 @@ class EasyLung(EasyBroncho):
         d = self.getDiameterFromGen(numGen)
         return (pi*self.P*((d/2.0)**4))/(8.0*eta*self.l)
 
-
-    def getTau(self):
-        self.Tau = self.resistance*self.compliance
-        return self.Tau
-
 if __name__ == "__main__":
     lung = EasyLung(2)
-    lung.compliance = 0.8
+    lung.bronchi[1].compliance = 0.8
+    lung.bronchi[2].compliance = 0.7
     t0 = 0
     tf = 20000
     t = np.linspace(t0, tf)
@@ -67,11 +65,15 @@ if __name__ == "__main__":
     Vg = Vg0*np.sin(2*pi*f*t)
     Vc0 = 5
     lung.setModelParams(t, Vg, Vc0)
-    y = lung.solveModel()
+    dVcdt = lung.solveModel()
 
     # plot results
-    plt.plot(t,y,'r-',label='Output (y(t))')
-    plt.ylabel('values')
-    plt.xlabel('time')
+    
+    plt.plot(t,dVcdt[:,0],'r-',label='dVc1')
+    plt.plot(t,dVcdt[:,1],'b-',label='dVc2')
+    plt.ylabel('dVc/dt',)
+    plt.xlabel('time [s]')
+
     plt.legend(loc='best')
+    plt.grid(linestyle='dashed', linewidth=0.5)
     plt.show()

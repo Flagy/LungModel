@@ -27,6 +27,9 @@ class EasyBroncho(object):
             self.resistance = (8*EasyBroncho.eta*self.length)/(pi*(self.diameter/2)**4) # Poiseuille resistance   
             self.compliance = compliance
 
+    def getTau(self):
+        return self.resistance * self.compliance
+
     def from_json(self):
         with open("WeibelsModel_parameters.json") as json_file:
             d = json.load(json_file)['generation'][self.generationNumber]
