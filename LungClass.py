@@ -18,30 +18,32 @@ class EasyLung(EasyBroncho):
         for gen in range(numberOfGen + 1):
             self.bronchi.append(EasyBroncho(generationNumber = numberOfGen, paramsFromJson = True))
     
-    def setModelParams(self, t, Vg, Vc0):
+    def setModelParams(self, t, Ic0):
         self.t = t
-        self.Vg = Vg
-        self.Ig = self.Vg / self.bronchi[0].resistance
-        self.Vc0 = [Vc0, Vc0]
+        self.i = 0
+        self.Ic0 = [Ic0, Ic0]
         return True
     
-    def model(self, y, t):
-        # Creating the iterators
-        iterVg = np.nditer(self.Vg)
-        iterIg = np.nditer(self.Ig)
-
-        # Using the iterators. This is for how it works the function odeint of scipy.integrate
-        Vg = next(iterVg)
-        Ig = next(iterIg)
-
+    def model_dIdt(self, y0, t, f):
         # Definition of the model
-        dVc1dt = 1/self.bronchi[1].getTau()*(Vg - self.bronchi[0].resistance*Ig) - 1/self.bronchi[1].getTau()*y
-        dVc2dt = 1/self.bronchi[2].getTau()*(Vg - self.bronchi[0].resistance*Ig) - 1/self.bronchi[2].getTau()*y
-        dVcdt = [dVc1dt[0], dVc2dt[0]]
-        return dVcdt
+        self.i+=1
+        print(self.i)
+        Ig = 5*np.sin(2*pi*10*t)
+        dIgdt = 5*np.cos(2*pi*10*t)
+        C1 = self.bronchi[1].compliance
+        C2 = self.bronchi[2].compliance
+        R1 = self.bronchi[1].resistance
+        R2 = self.bronchi[2].resistance
+        dI1dt = ((Ig-y0[0])/C2 - (Ig-y0[1])/C1 + dIgdt*R2)/(R1+R2)
+        dI2dt = ((Ig-y0[1])/C1 - (Ig-y0[0])/C2 + dIgdt*R1)/(R1+R2)
+        dIdt = [dI1dt, dI2dt]
+        #print(y0[0], y0[1], t)
+        return dIdt
 
     def solveModel(self):
-        sol = odeint(self.model, self.Vc0, self.t)
+        # Creating the iterators
+        f = 10
+        sol = odeint(self.model_dIdt, self.Ic0, self.t, args=(f, ))
         return sol
 
     def getDiameterFromGen(self, numGen):
@@ -57,21 +59,15 @@ if __name__ == "__main__":
     lung = EasyLung(2)
     lung.bronchi[1].compliance = 0.8
     lung.bronchi[2].compliance = 0.7
-    t0 = 0
-    tf = 20000
-    t = np.linspace(t0, tf)
-    Vg0 = 200
-    f = 100
-    Vg = Vg0*np.sin(2*pi*f*t)
-    Vc0 = 5
-    lung.setModelParams(t, Vg, Vc0)
-    dVcdt = lung.solveModel()
+    t = np.linspace(0, 1000, 1000)
+    lung.setModelParams(t, 5)
+    dIdt = lung.solveModel()
 
     # plot results
     
-    plt.plot(t,dVcdt[:,0],'r-',label='dVc1')
-    plt.plot(t,dVcdt[:,1],'b-',label='dVc2')
-    plt.ylabel('dVc/dt',)
+    plt.plot(t,dIdt[:,0],'r-',label=r'$\frac{dVc_1}{dt}$')
+    plt.plot(t,dIdt[:,1],'b-',label=r'$\frac{dVc_2}{dt}$')
+    plt.ylabel("dVc/dt")
     plt.xlabel('time [s]')
 
     plt.legend(loc='best')
