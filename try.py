@@ -1,38 +1,36 @@
 import numpy as np
-from scipy.integrate import odeint
 import matplotlib.pyplot as plt
+from scipy.integrate import odeint
 from math import pi
 
-# function that returns dz/dt
-def model(z,t):
+def model(y0, t, f):
+    # Definition of the model
+    Ig = 5*np.sin(2*pi*10*t)
+    dIgdt = 5*np.cos(2*pi*10*t)
+    C1 = 2
+    C2 = 3
     R1 = 10
-    R2 = 100
-    C1 = 0.005
-    C2 = 0.004
+    R2 = 12
+    dI1dt = ((Ig-y0[0])/C2 - (Ig-y0[1])/C1 + dIgdt*R2)/(R1+R2)
+    dI2dt = ((Ig-y0[1])/C1 - (Ig-y0[0])/C2 + dIgdt*R1)/(R1+R2)
+    dIdt = [dI1dt, dI2dt]
+    #print(y0[0], y0[1], t)
+    return dIdt
+
+def solveModel():
+    # Creating the iterators
     f = 10
-    A0 = 10
-    Ig = A0*np.sin(2*pi*f*t)
-    dIgdt = A0*np.cos(2*pi*f*t)
-    # dI1dt = ((Ig-z0[2])/C2 - (Ig-z0[3])/C1 + dIgdt*R2)/(R1+R2)
-    # dI2dt = ((Ig-z0[3])/C1 - (Ig-z0[2])/C2 + dIgdt*R1)/(R1+R2)
-    dzdt = [Ig,dIgdt]
-    return dzdt
+    Ic0 = [5, 5]
+    t = np.arange(0, 10, 0.01)
+    sol = odeint(model, Ic0, t, args=(f, ))
+    plotSolution(t, sol)
+    
+def plotSolution(t, sol):
+    plt.plot(t, sol)
+    plt.xlabel("time")
+    plt.ylabel("di/dt")
+    plt.title("Result")
+    plt.show()
 
-# initial condition
-z0 = [0,0]
-
-# time points
-t = np.linspace(0,1,500)
-
-# solve ODE
-z = odeint(model,z0,t)
-
-# plot results
-plt.plot(t,z[:,0],'b-',label=r'$Ig = 10sin(2\pi ft)$')
-plt.plot(t,z[:,1],'r--',label=r'$\frac{dI_g}{dt} = 10cos(2\pi ft)$')
-# plt.plot(t,z[:,2],'g-',label=r'$\frac{dI_1}{dt}$')
-# plt.plot(t,z[:,3],'y--',label=r'$\frac{dI_2}{dt}$')
-plt.ylabel('response')
-plt.xlabel('time')
-plt.legend(loc='best')
-plt.show()
+if __name__ == "__main__":
+    solveModel()
