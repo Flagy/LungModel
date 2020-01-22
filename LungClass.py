@@ -42,8 +42,8 @@ class EasyLung(object):
 
 if __name__ == "__main__":
 
-    R = (5e-5, 2e-5)
-    C = (1e-5, 1000e-5)
+    R = (1.211e5, 3e5)
+    C = (1e-5, 2.235e-5)
     lung = EasyLung(R, C)
     f = 0.25 # 15 respiri al minuto --> 1 respiro ogni 4 secondi --> 0.25 Hz
     t = np.arange(0, 30, 0.01) # start, stop, step: be sure step is ok with frequency
@@ -80,4 +80,6 @@ if __name__ == "__main__":
     plt.legend(loc='best')
     plt.grid(linestyle='dashed', linewidth=0.5)
     plt.title(r"Flow partition")
+
+    plt.suptitle(r"$R_1: %g, R_2: %g, C_1: %g, C_2: %g$" % (R[0], R[1], C[0], C[1]), fontsize=12)
     plt.show()
