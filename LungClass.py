@@ -1,82 +1,83 @@
 from math import sqrt, pi
-from BronchoClass import EasyBroncho
+# from BronchoClass import EasyBroncho
 from scipy.integrate import odeint
+from scipy import signal
 import numpy as np
 import matplotlib.pyplot as plt
 
-class EasyLung(EasyBroncho):
-    """
-    Description of the class:
-    This class should only expose the methods for solving the differential equations of the model of the EasyBroncho class.
-    """
-    totGenerations = 27
-    eta = 1.81e-5 #Pa*s https://www.engineersedge.com/physics/viscosity_of_air_dynamic_and_kinematic_14483.htm
-    def __init__(self, numberOfGen):
-        if numberOfGen < 0 or numberOfGen > EasyLung.totGenerations:
-            raise ValueError
-        self.bronchi = []
-        for gen in range(numberOfGen + 1):
-            self.bronchi.append(EasyBroncho(generationNumber = numberOfGen, paramsFromJson = True))
+class EasyLung(object):
+
+    def __init__(self, R, C):
+        (self.R1, self.R2) = R
+        (self.C1, self.C2) = C
     
-    def setModelParams(self, t, f, initConds):
-        self.f = f # 15 respiri al minuto --> 1 respiro ogni 4 secondi --> 0.25 Hz
+    def setModelParams(self, t, inputSignal, initConds):
         self.t = t
-        self.Ic0 = initConds # Initial conditions in the 2 currents
-        return True
-    
-    def model_dIdt(self, y0, t):
-        # Definition of the model
-        Ig = 5*np.sin(2*pi*self.f*t)
-        dIgdt = 2*pi*self.f*5*np.cos(2*pi*self.f*t)
-        C1 = self.bronchi[1].compliance
-        C2 = self.bronchi[2].compliance
-        R1 = self.bronchi[1].resistance
-        R2 = self.bronchi[2].resistance
-        R1 = 100000
-        R2 = 900000
-        # print(R2*dIgdt)
-        # print(R1*dIgdt)
-        dI1dt = (R2*dIgdt + Ig/C2 - y0[0]*(1/C1 + 1/C2))/(R1+R2)
-        dI2dt = (R1*dIgdt + Ig/C1 - y0[1]*(1/C1 + 1/C2))/(R1+R2)
-        print(dI1dt)
-        print(dI2dt)
-        dIdt = [dI1dt, dI2dt]
-        return dIdt
+        self.inputSignal = inputSignal
+        self.derivInputSignal = np.gradient(self.inputSignal, self.t)
+        self.initConds = initConds # Initial conditions of the charges
 
-    def solveModel(self):
-        # Creating the iterators
-        sol = odeint(self.model_dIdt, self.Ic0, self.t)
-        return sol
+    def model(self, z, t, s, ds):
+        Req = self.R1 + self.R2
+        Ceq = 1/self.C1 + 1/self.C2
+        ds1dt = -Ceq/Req*z[0] + (self.R2/Req)*ds + s/(Req*self.C2)
+        ds2dt = -Ceq/Req*z[1] + (self.R1/Req)*ds + s/(Req*self.C1)
+        dsdt = [ds1dt, ds2dt]
+        return dsdt
 
-    def getDiameterFromGen(self, numGen):
-        """Description"""
-        return self.diameter * self.h**numGen
-
-    def getResistanceFromGen(self, numGen):
-        """Poiseuille Resistance, Weibel Model"""
-        d = self.getDiameterFromGen(numGen)
-        return (pi*self.P*((d/2.0)**4))/(8.0*EasyBroncho.eta*self.l)
+    def SolveModel(self, model):
+        z0 = self.initConds
+        sol1 = np.zeros_like(self.t)
+        sol2 = np.zeros_like(self.t)
+        sol1[0] = z0[0]
+        sol2[0] = z0[1]
+        for i in range(1, len(self.t)):
+            # time span necessary for derivative inside odeint
+            tspan = [self.t[i-1], self.t[i]]
+            sol = odeint(model, z0, tspan, args=(self.inputSignal[i], self.derivInputSignal[i]))
+            sol1[i] = sol[1][0]
+            sol2[i] = sol[1][1]
+            z0 = sol[1]
+        return (sol1, sol2)
 
 if __name__ == "__main__":
-    lung = EasyLung(2)
-    lung.bronchi[1].compliance = 0.05e-5
-    lung.bronchi[2].compliance = 0.05e-5
-    f = 0.25 # 15 respiri al minuto --> 1 respiro ogni 4 secondi --> 0.25 Hz
-    startTime = 0
-    stopTime = 30
-    incrementTime = 0.01 # Be sure this is okay with the frequency
-    t = np.arange(startTime, stopTime, incrementTime)
-    lung.setModelParams(t, f, initConds=(0, 0))
-    dIdt = lung.solveModel()
-    # print(lung.getResistanceFromGen(2))
-    # plot results
-    
-    plt.plot(t, 5*np.sin(2*pi*0.25*t), 'k', label=r'$I_g(t)$')
-    plt.plot(t,dIdt[:,0],'r-',label=r'$\frac{dI_1}{dt}$')
-    plt.plot(t,dIdt[:,1],'b-',label=r'$\frac{dI_2}{dt}$')
-    plt.ylabel(r"$\frac{dI_c}{dt}$", rotation=0)
-    plt.xlabel('time [s]')
 
+    R = (5e-5, 2e-5)
+    C = (1e-5, 1000e-5)
+    lung = EasyLung(R, C)
+    f = 0.25 # 15 respiri al minuto --> 1 respiro ogni 4 secondi --> 0.25 Hz
+    t = np.arange(0, 30, 0.01) # start, stop, step: be sure step is ok with frequency
+    
+    ########## Volume partitions ##########
+    Qg = 5*np.sin(2*pi*f*t)
+    lung.setModelParams(t, Qg, initConds=(0, 0))
+    Q = lung.SolveModel(lung.model)
+    plt.subplot(211)
+    plt.plot(t, Qg, 'k', label=r'$Q_0(t)$')
+    plt.plot(t,Q[0],'r-',label=r'$Q_1(t)$')
+    plt.plot(t,Q[1],'b-',label=r'$Q_2(t)$')
+    plt.plot(t,Q[0] + Q[1],'g--',label=r'$Q_1 + Q_2$')
+    plt.ylabel(r"$Q(t)$", rotation=0)
+    plt.xlabel('time [s]')
     plt.legend(loc='best')
     plt.grid(linestyle='dashed', linewidth=0.5)
+    plt.title(r"Volume partition")
+    
+    ########## Flow partitions ###########
+    Ig = 10*pi*f*np.cos(2*pi*f*t)
+    derivInput = np.gradient(Ig, t)
+    initConds = tuple(Ig[0] * np.array((R[1]/(R[0] + R[1]), R[0]/(R[0] + R[1]))))
+    lung.setModelParams(t, Ig, initConds)
+    I = lung.SolveModel(lung.model)
+
+    plt.subplot(212)
+    plt.plot(t, Ig, 'k', label=r'$I_0(t)$')
+    plt.plot(t,I[0],'r-',label=r'$I_1(t)$')
+    plt.plot(t,I[1],'b-',label=r'$I_2(t)$')
+    plt.plot(t,I[0] + I[1],'g--',label=r'$I_1 + I_2$')
+    plt.ylabel(r"$I(t)$", rotation=0)
+    plt.xlabel('time [s]')
+    plt.legend(loc='best')
+    plt.grid(linestyle='dashed', linewidth=0.5)
+    plt.title(r"Flow partition")
     plt.show()
