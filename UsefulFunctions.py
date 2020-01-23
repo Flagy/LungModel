@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 from math import pi
 
 def solveAndPlot(f, t, lung, func):
+    
+    # Pay attention because for now the input is here and the setting of parameters 
+    # and initial conditions is here as well
+    
     ########## Volume partitions ##########
     Qg = 5*np.sin(2*pi*f*t)
     lung.setModelParams(t, Qg, initConds=(0, 0))
