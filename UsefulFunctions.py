@@ -38,4 +38,4 @@ def solveAndPlot(f, t, lung, func):
     plt.title(r"Flow partition")
 
     plt.suptitle(r"$R_1: %g, R_2: %g, C_1: %g, C_2: %g$" % (lung.R1, lung.R2, lung.C1, lung.C2), fontsize=12)
-    plt.show()
+    return plt
