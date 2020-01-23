@@ -27,13 +27,13 @@ class EasyLung(EasyBroncho):
     def model_dIdt(self, y0, t):
         # Definition of the model
         Ig = 5*np.sin(2*pi*self.f*t)
-        dIgdt = 5*np.cos(2*pi*self.f*t)
+        dIgdt = 5*2*pi*self.f*np.cos(2*pi*self.f*t)
         C1 = self.bronchi[1].compliance
         C2 = self.bronchi[2].compliance
         R1 = self.bronchi[1].resistance
         R2 = self.bronchi[2].resistance
-        R1 = 100
-        R2 = 100
+        R1 = 1e-5
+        R2 = 2e-5
         dI1dt = ((Ig-y0[0])/C2 - (Ig-y0[1])/C1 + dIgdt*R2)/(R1+R2)
         dI2dt = ((Ig-y0[1])/C1 - (Ig-y0[0])/C2 + dIgdt*R1)/(R1+R2)
         dIdt = [dI1dt, dI2dt]
@@ -55,16 +55,16 @@ class EasyLung(EasyBroncho):
 
 if __name__ == "__main__":
     lung = EasyLung(2)
-    lung.bronchi[1].compliance = 0.8
-    lung.bronchi[2].compliance = 0.8
+    lung.bronchi[1].compliance = 0.01e-5
+    lung.bronchi[2].compliance = 0.01e-5
     f = 0.25 # 15 respiri al minuto --> 1 respiro ogni 4 secondi --> 0.25 Hz
     startTime = 0
     stopTime = 30
     incrementTime = 0.01 # Be sure this is okay with the frequency
     t = np.arange(startTime, stopTime, incrementTime)
-    lung.setModelParams(t, f, initConds=(0 ,0))
+    lung.setModelParams(t, f, initConds=(0, 0))
     dIdt = lung.solveModel()
-    print(lung.getResistanceFromGen(2))
+    # print(lung.getResistanceFromGen(2))
     # plot results
     
     plt.plot(t, 5*np.sin(2*pi*0.25*t), 'k', label=r'$I_g(t)$')
