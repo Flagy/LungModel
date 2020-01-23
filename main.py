@@ -10,8 +10,9 @@ t = np.arange(0, 30, 0.01) # start, stop, step: be sure step is ok with frequenc
     
 ########## Volume partitions ##########
 Qg = 5*np.sin(2*pi*f*t)
-lung.setModelParams(t, Qg, initConds=(0, 0)
-Q = lung.SolveModel(lung.model)
+lung.setModelParams(t, Qg, initConds=(0, 0))
+Q = lung.SolveModel(lung.notLinearResistanceModel)
+
 plt.subplot(211)
 plt.plot(t, Qg, 'k', label=r'$Q_0(t)$')
 plt.plot(t,Q[0],'r-',label=r'$Q_1(t)$')
@@ -28,7 +29,7 @@ Ig = np.gradient(Qg, t)
 derivInput = np.gradient(Ig, t)
 initConds = tuple(Ig[0] * np.array((R[1]/(R[0] + R[1]), R[0]/(R[0] + R[1]))))
 lung.setModelParams(t, Ig, initConds)
-I = lung.SolveModel(lung.model)
+I = lung.SolveModel(lung.notLinearResistanceModel)
 
 plt.subplot(212)
 plt.plot(t, Ig, 'k', label=r'$I_0(t)$')
