@@ -24,7 +24,8 @@ where $V_g(t)$ represents the difference in pressure between athmosphere and ple
 \includegraphics[scale=1.3]{LungModelRC.pdf}
 \caption{Electrical equivalent of a bifurcation. 2 compartments are studied.}
 \end{figure}
-\begin{figure}[ht]
+\section{Solving ODE in current}
+\begin{figure}[!th]
 \includegraphics[scale=1.3]{TheveninEquivalent.pdf}
 \caption{Thevenin equivalent of the circuit in figure 1. The voltage generator and $R_0$ are replaced in favor of a generator of current which simulate the airflow in the trachea.}
 \end{figure}
@@ -57,24 +58,30 @@ Remembering the LKI and using the conservation of charge:
 $$Q_0 = Q_1 + Q_2 \Rightarrow \frac{di_0}{dt} = \frac{di_1}{dt} + \frac{di_2}{dt}$$
 \[
 \spalignsys{
-\frac{di_1}{dt}R1 + \frac{i_1}{C_1} - \frac{di_2}{dt}R_2 - \frac{i_2}{C_2} = 0;
-\frac{di_2}{dt}R2 + \frac{i_2}{C_2} - \frac{di_1}{dt}R_1 - \frac{i_1}{C_1} = 0
+\frac{di_1}{dt}R_1 + \frac{i_1}{C_1} - \frac{di_2}{dt}R_2 - \frac{i_2}{C_2} = 0;
+\frac{di_2}{dt}R_2 + \frac{i_2}{C_2} - \frac{di_1}{dt}R_1 - \frac{i_1}{C_1} = 0
 }
 \]
 \vspace{1em}
 \[
 \spalignsys{
-\frac{di_1}{dt}(R_1R_2) + i_1(\frac{1}{C_1} + \frac{1}{C_2}) = R_2\frac{di_0}{dt} + \frac{i_0}{C_2};
-\frac{di_2}{dt}(R_1R_2) + i_2(\frac{1}{C_1} + \frac{1}{C_2}) = R_1\frac{di_0}{dt} + \frac{i_0}{C_1}
+\frac{di_1}{dt}(R_1+R_2) + i_1(\frac{1}{C_1} + \frac{1}{C_2}) = R_2\frac{di_0}{dt} + \frac{i_0}{C_2};
+\frac{di_2}{dt}(R_1+R_2) + i_2(\frac{1}{C_1} + \frac{1}{C_2}) = R_1\frac{di_0}{dt} + \frac{i_0}{C_1}
 }
 \]
 \vspace{1em}
-\begin{empheq}[box=\tcbhighmath]{equation}
+\[
 \spalignsys{
 \frac{di_1}{dt} + i_1\frac{\frac{1}{C_1} + \frac{1}{C_2}}{R_1 + R_2} = \frac{R_2\frac{di_0}{dt} + \frac{i_0}{C_2}}{R_1 + R_2};
 \frac{di_2}{dt} + i_2\frac{\frac{1}{C_1} + \frac{1}{C_2}}{R_1 + R_2} = \frac{R_1\frac{di_0}{dt} + \frac{i_0}{C_1}}{R_1 + R_2}
 }
+\]
+\begin{empheq}[box=\tcbhighmath]{equation}
+\spalignsys{
+\frac{di_1}{dt} = \frac{R_2\frac{di_0}{dt} + \frac{i_0}{C_2} - i_1(\frac{1}{C_1} + \frac{1}{C_2})}{R_1 + R_2};
+\frac{di_2}{dt} = \frac{R_1\frac{di_0}{dt} + \frac{i_0}{C_1} - i_2(\frac{1}{C_2} + \frac{1}{C_1})}{R_1 + R_2};
+}
 \end{empheq}
-Here we get a system of differential equations in which $R_1, R_2, C_1, C_2$ and $i_0$ are known and we can get the flow in the 2 different compartment.
+Here we get a system of differential equations in which $R_1, R_2, C_1, C_2$ and $i_0$ are known and we can get the flow in the 2 different compartments.
 \section*{Testing the differential equations in Python}
 \end{document}

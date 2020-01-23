@@ -1,26 +1,17 @@
 from math import sqrt, pi
-from BronchoClass import EasyBroncho
 from scipy.integrate import odeint
 import numpy as np
 import matplotlib.pyplot as plt
 
-class EasyLung(EasyBroncho):
-    """
-    Description of the class:
-    This class should only expose the methods for solving the differential equations of the model of the EasyBroncho class.
-    """
-    totGenerations = 27
-    eta = 1.81e-5 #Pa*s https://www.engineersedge.com/physics/viscosity_of_air_dynamic_and_kinematic_14483.htm
-    def __init__(self, numberOfGen):
-        if numberOfGen < 0 or numberOfGen > EasyLung.totGenerations:
-            raise ValueError
-        self.bronchi = []
-        for gen in range(numberOfGen + 1):
-            self.bronchi.append(EasyBroncho(generationNumber = numberOfGen, paramsFromJson = True))
+class EasyLung(object):
+
+    def __init__(self, R, C):
+        (self.R1, self.R2) = R
+        (self.C1, self.C2) = C
     
-    def setModelParams(self, t, f, initConds):
-        self.f = f # 15 respiri al minuto --> 1 respiro ogni 4 secondi --> 0.25 Hz
+    def setModelParams(self, t, inputSignal, initConds):
         self.t = t
+<<<<<<< HEAD
         self.Ic0 = initConds # Initial conditions in the 2 currents
         return True
     
@@ -43,11 +34,21 @@ class EasyLung(EasyBroncho):
         # Creating the iterators
         sol = odeint(self.model_dIdt, self.Ic0, self.t)
         return sol
+=======
+        self.inputSignal = inputSignal
+        self.derivInputSignal = np.gradient(self.inputSignal, self.t)
+        self.initConds = initConds # Initial conditions of the charges
+>>>>>>> f52d8480c7c666253289730bf8c6068b9cd66cf5
 
-    def getDiameterFromGen(self, numGen):
-        """Description"""
-        return self.diameter * self.h**numGen
+    def model(self, z, t, s, ds):
+        Req = self.R1 + self.R2
+        Ceq = 1/self.C1 + 1/self.C2
+        ds1dt = -Ceq/Req*z[0] + (self.R2/Req)*ds + s/(Req*self.C2)
+        ds2dt = -Ceq/Req*z[1] + (self.R1/Req)*ds + s/(Req*self.C1)
+        dsdt = [ds1dt, ds2dt]
+        return dsdt
 
+<<<<<<< HEAD
     def getResistanceFromGen(self, numGen):
         """Poiseuille Resistance, Weibel Model"""
         d = self.getDiameterFromGen(numGen)
@@ -72,7 +73,21 @@ if __name__ == "__main__":
     plt.plot(t,dIdt[:,1],'b-',label=r'$\frac{dI_2}{dt}$')
     plt.ylabel(r"$\frac{dI_c}{dt}$", rotation=0)
     plt.xlabel('time [s]')
+=======
+    def SolveModel(self, model):
+        z0 = self.initConds
+        sol1 = np.zeros_like(self.t)
+        sol2 = np.zeros_like(self.t)
+        sol1[0] = z0[0]
+        sol2[0] = z0[1]
+        for i in range(1, len(self.t)):
+            # time span necessary for derivative inside odeint
+            tspan = [self.t[i-1], self.t[i]]
+            sol = odeint(model, z0, tspan, args=(self.inputSignal[i], self.derivInputSignal[i]))
+            sol1[i] = sol[1][0]
+            sol2[i] = sol[1][1]
+            z0 = sol[1]
+        return (sol1, sol2)
+>>>>>>> f52d8480c7c666253289730bf8c6068b9cd66cf5
 
-    plt.legend(loc='best')
-    plt.grid(linestyle='dashed', linewidth=0.5)
-    plt.show()
+    
