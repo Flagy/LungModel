@@ -43,7 +43,7 @@ class EasyBroncho(object):
 
 
 if __name__ == "__main__":
-    bifurcation = EasyBroncho(1, paramsFromJson=True)
+    bifurcation = EasyBroncho(0, paramsFromJson=True)
     print("Bifurcation generation is: %d" % bifurcation.generationNumber)
     print("Bifurcation diameter is: %f m" % bifurcation.diameter)
     print("Bifurcation length is: %f m" % bifurcation.length)

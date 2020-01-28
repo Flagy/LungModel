@@ -3,6 +3,7 @@ from scipy.integrate import odeint
 from scipy.special import softmax
 import numpy as np
 import matplotlib.pyplot as plt
+import cmath
 
 class EasyLung(object):
 
@@ -49,4 +50,15 @@ class EasyLung(object):
             z0 = sol[1]
         return (sol1, sol2)
 
-    
+    def LaplaceSolution(self, f, externalForce):
+        w = 2*pi*f
+        s = complex(0, 1)*w
+        externalForce = np.fft.fft(externalForce)
+        Z0 = 843 # (Pa*s)/m^3 it's the resistance of the trachea
+        Z1 = 1/(s*self.C1) + self.R1
+        Z2 = 1/(s*self.C2) + self.R2
+        Zeq = 1/(Z0 + 1/(1/Z1 + 1/Z2))
+        i0 = externalForce * Zeq
+        i1 = i0*Z2/(Z1+Z2)
+        i2 = i0*Z1/(Z1+Z2)
+        return(i0, i1, i2)
