@@ -52,8 +52,8 @@ class EasyLung(object):
 
     def LaplaceSolution(self, f, externalForce):
         w = 2*pi*f
-        s = complex(0, 1)*w
-        externalForce = np.fft.fft(externalForce)
+        s = 1j*w
+        externalForce = s*np.fft.fft(externalForce)
         Z0 = 843 # (Pa*s)/m^3 it's the resistance of the trachea
         Z1 = 1/(s*self.C1) + self.R1
         Z2 = 1/(s*self.C2) + self.R2
