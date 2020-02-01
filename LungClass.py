@@ -1,6 +1,7 @@
 from math import sqrt, pi
 from scipy.integrate import odeint
 from scipy.special import softmax
+from scipy import signal
 import numpy as np
 import matplotlib.pyplot as plt
 import cmath
@@ -8,7 +9,7 @@ import cmath
 class EasyLung(object):
 
     def __init__(self, R, C):
-        (self.R1, self.R2) = R
+        (self.R0, self.R1, self.R2) = R
         (self.C1, self.C2) = C
     
     def setModelParams(self, t, inputSignal, initConds):
@@ -51,14 +52,38 @@ class EasyLung(object):
         return (sol1, sol2)
 
     def LaplaceSolution(self, f, externalForce):
-        w = 2*pi*f
-        s = 1j*w
         externalForce = np.fft.fft(externalForce)
-        Z0 = 843 # (Pa*s)/m^3 it's the resistance of the trachea
-        Z1 = 1/(s*self.C1) + self.R1
-        Z2 = 1/(s*self.C2) + self.R2
-        Zeq = Z0 + 1/(1/Z1 + 1/Z2)
+        (Z0, Z1, Z2, Zeq) = self.getImpedances(f)
         i0 = externalForce/Zeq
         i1 = i0*Z2/(Z1+Z2)
         i2 = i0*Z1/(Z1+Z2)
         return(i0, i1, i2)
+    
+    def getImpedances(self, f):
+        w = 2*pi*f
+        s = 1j*w
+        Z0 = self.R0 # (Pa*s)/m^3 it's the resistance of the trachea
+        Z1 = 1/(s*self.C1) + self.R1
+        Z2 = 1/(s*self.C2) + self.R2
+        Zeq = Z0 + 1/(1/Z1 + 1/Z2)
+        return(Z0, Z1, Z2, Zeq)
+
+    def BodeV0(self, f, forzante):
+        (Z0, Z1, Z2, _) = self.getImpedances(f)
+        H = self.parallel(Z1, Z2)/(self.parallel(Z1, Z2)+Z0)
+        sys = signal.lti([self.R1*self.R2, self.R1+self.R2, 1], [self.R2*self.C1 + self.R1*self.C2, self.C1 + self.C2, 0])
+        w, mag, phase = sys.bode()
+        plt.subplot(211)
+        plt.title(r"$|H(\omega)|$")
+        plt.xlabel(r"$\omega$")
+        plt.ylabel(r"$\log{|H(\omega)}|$")
+        plt.semilogx(w, mag)    # Bode magnitude plot
+        plt.subplot(212)
+        plt.title(r"$\varphi(H(\omega))$")
+        plt.xlabel(r"$\omega$")
+        plt.ylabel(r"$\varphi(H(\omega))$")
+        plt.semilogx(w, phase)  # Bode phase plot
+        plt.show()
+
+    def parallel(self, x1, x2):
+        return(1/(1/x1 + 1/x2))
