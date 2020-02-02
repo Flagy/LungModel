@@ -73,17 +73,22 @@ class EasyLung(object):
         H = self.parallel(Z1, Z2)/(self.parallel(Z1, Z2)+Z0)
         sys = signal.lti([self.R1*self.R2, self.R1+self.R2, 1], [self.R2*self.C1 + self.R1*self.C2, self.C1 + self.C2, 0])
         w, mag, phase = sys.bode()
+        ax_f = w/(2*pi)
         plt.subplot(211)
-        plt.title(r"$|H(\omega)|$")
-        plt.xlabel(r"$\omega$")
-        plt.ylabel(r"$\log{|H(\omega)}|$")
-        plt.semilogx(w, mag)    # Bode magnitude plot
+        plt.title(r"$|H(f)|$")
+        plt.xlabel(r"$f (Hz)$")
+        plt.ylabel(r"$\log{|H(f)}|$")
+        plt.semilogx(ax_f, mag)    # Bode magnitude plot
+        plt.axvline(f, color='r', linestyle='--')
+        plt.grid(linestyle='dashed', linewidth=0.5)
         plt.subplot(212)
-        plt.title(r"$\varphi(H(\omega))$")
-        plt.xlabel(r"$\omega$")
-        plt.ylabel(r"$\varphi(H(\omega))$")
-        plt.semilogx(w, phase)  # Bode phase plot
-        plt.show()
+        plt.title(r"$\varphi(H(f))$")
+        plt.xlabel(r"$f (Hz)$")
+        plt.ylabel(r"$\varphi(H(f))$")
+        plt.semilogx(ax_f, phase)  # Bode phase plot
+        plt.axvline(f, color='r', linestyle='--')
+        plt.grid(linestyle='dashed', linewidth=0.5)
+        return plt
 
     def parallel(self, x1, x2):
         return(1/(1/x1 + 1/x2))
