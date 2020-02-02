@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 class EasyLung(object):
 
     def __init__(self, R, C):
-        (self.R1, self.R2) = R
+        (self.R0, self.R1, self.R2) = R
         (self.C1, self.C2) = C
     
     def setModelParams(self, t, inputSignal, initConds):
@@ -16,7 +16,7 @@ class EasyLung(object):
         self.derivInputSignal = np.gradient(self.inputSignal, self.t)
         self.initConds = initConds # Initial conditions of the charges
 
-    def linearModel(self, z, t, s, ds):
+    def linearModelFromQ(self, z, t, s, ds):
         Req = self.R1 + self.R2
         Ceq = 1/self.C1 + 1/self.C2
         ds1dt = -Ceq/Req*z[0] + (self.R2/Req)*ds + s/(Req*self.C2)
@@ -24,7 +24,7 @@ class EasyLung(object):
         dsdt = [ds1dt, ds2dt]
         return dsdt
 
-    def notLinearResistanceModel(self, z, t, s, ds):
+    def notLinearModelFromQ(self, z, t, s, ds):
         R1 = self.R1 + np.tanh(self.R1*s**2)
         R2 = self.R2*np.cos(self.R2*s**2)
         Req = R1 + R2
@@ -33,6 +33,12 @@ class EasyLung(object):
         ds2dt = -Ceq/Req*z[1] + (R1/Req)*ds + s/(Req*self.C1)
         dsdt = [ds1dt, ds2dt]
         return dsdt
+    
+    def linearModelFromV(self, z, t, s, ds):
+        pass
+
+    def notLinearModelFromV(self, z, t, s, ds):
+        pass
 
     def SolveModel(self, model):
         z0 = self.initConds
