@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import pi
 
-def solveAndPlot(f, t, lung, func):
+def solveAndPlot(f, t, extForce, lung, func):
     
     # Pay attention because for now the input is here and the setting of parameters 
     # and initial conditions is here as well
     
     ########## Volume partitions ##########
-    Qg = 5*np.sin(2*pi*f*t)
+    Qg = extForce
     lung.setModelParams(t, Qg, initConds=(0, 0))
     Q = lung.SolveModel(func)
 
