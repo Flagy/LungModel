@@ -35,6 +35,7 @@ class EasyLung(object):
         return dsdt
     
     def linearModelFromV(self, z, t, s, ds):
+        di1dt = -i1/(C1*(R0+R1)) - R0*di2dt/(R0+R1) + dVgdt/(R0+R1)
         pass
 
     def notLinearModelFromV(self, z, t, s, ds):
