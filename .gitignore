@@ -5,6 +5,11 @@ __pycache__
 .pytest_cache
 .python-version
 
+#LTSpice
+*.op.raw
+*.raw
+*.log
+
 # Compiled source #
 ###################
 *.com
