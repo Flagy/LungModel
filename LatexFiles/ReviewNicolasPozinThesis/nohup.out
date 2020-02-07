@@ -1,0 +1,2 @@
+qt5ct: using qt5ct plugin
+inotify_add_watch("/home/rickyd/.config/qt5ct") failed: "No such file or directory"

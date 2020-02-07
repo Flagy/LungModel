@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{color, soul}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{systeme}
+\usepackage{spalign}
+\usepackage{listings}
+\usepackage{nicefrac}
+\usepackage{empheq}
+\usepackage[most]{tcolorbox}
+\usepackage{mdframed}
+\title{\vspace{-3.0cm}Nicolas Pozin Chapter 2}
+\author{Riccardo Di Dio}
+\date{\today}
+\mdfsetup{%
+backgroundcolor=yellow!10,
+roundcorner=10pt,}
+% \raggedbottom
+\begin{document}
+\maketitle
+\section{Models and numerical methods}
+In this section of the chapter there is a strong interest in developing the mathematical model that then will be applied during the rest of the work. Mainly 3 models are investigated.
+\begin{itemize}
+\item Tracheo-bronchial tree
+\item Tree-parenchyma coupled model
+\item Exit compartment model
+\end{itemize}
+Then the link between the tree-parenchyma coupled model and the exit-compartment model is investigated.
+
+Furthermore, numerical methods are described to solve the constitutive equations of the tree-parenchyma coupled model and the exit compartment model.
+
+The parenchyma is described as an \textcolor{red}{\emph{elastic homogenized}} medium. The tracheo-bronchial tree is modeled as a space filling \textcolor{red}{\emph{dyadic resistive pipe network}} and the air is \textcolor{red}{\emph{incompressible}}. The tree and the parenchyma are \textcolor{red}{\emph{coupled}}.
+
+The tree induces an extra \textcolor{red}{\emph{viscous term}} in the system of constitutive relation. This will lead to have a \textcolor{red}{\emph{full matrix}} in the finite element framework.
+\subsection{Tracheo-bronchial tree}
+$$\Delta p = Rq$$
+$$R_{pois} = \frac{8\mu L}{\pi r^4}$$
+However the Poiseuille resistance doesn't take into account the \emph{pressure drop at bifurcations}. Pedley's resistance model on the other hand does.
+$$R_{ped} = \spalignsys{\lambda(Re\frac{2r}{L})^\frac{1}{2} \hspace{1em} R_{ped} > R_{pois};
+R_{pois} \hspace{1em} R_{ped} < R_{pois}}$$
+Usually $R_{ped} \equiv R_{pos}$ in the distal part of the lung, starting from $\approx 10^{th}$ generation where Reynolds' number is small enough.\\
+$\lambda$ can be taken constant ($\lambda = 0.327$) or can vary within the generation number.\par
+A human tracheo-bronchial tree contains on average 24 generations leading to $2^{23}$ exits. To reduce the computational cost the subtrees are grouped in equivalent branches, called tree exits. In distal regions the radius of the bronchi is very small leading to a laminar flow. We also assume that the subtrees are symmetrical and distal airways resistances follow a geometrical progression with common ratio $h = 1.63$.
+This ratio can be obtained by the Weybel's model of the lung. Moreover we assume that outlet pressures within each subtree are uniform, which is usually true for small subtrees.
+
+It is worth to note that independently from Pedley or Poiseuille resistance models, there is a significant decrease in pressure drop in distal regions compared to proximal airways.
+$$A= [A_{ij}] \hspace{1em} \text{with} \hspace{0.5em} A_{ij} = \sum_{(n,k)\in T_{ij}}R_{n,k}$$
+$$\delta_{V_{tree}}=AQ$$
+being $R_{n,k}$ the resistance associated with the branch (n,k) where $n$ is the airway generation index starting from 0 and $k$ is the the airway in the given generation.
+
+The power dissipated in the tree can be written as
+$$\wp = {}^TQAQ$$
+\subsection{Tree parenchyma coupled model}
+In this model the lung parenchyma is seen as an \textcolor{red}{\emph{isotropic elastic media}} occupying a 3D volume denoted by $\Omega$. Pozin chose to neglect tissue viscosity and consider a linearized behavior law, recognizing it as a limitation. However in normal tidal breathing this assumption works ok.
+\begin{mdframed}
+\textbf{key point}: If an airway of the tracheo-bronchial tree is obstructed, the related supplied region will require more effort to strecth, even if its elastic properties are not affected. Hence, the parenchyma and the tree model needs to be mechanically coupled.
+\end{mdframed}
+
+\end{document}
