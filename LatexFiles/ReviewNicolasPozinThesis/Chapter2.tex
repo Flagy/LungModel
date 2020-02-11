@@ -56,5 +56,32 @@ In this model the lung parenchyma is seen as an \textcolor{red}{\emph{isotropic 
 \begin{mdframed}
 \textbf{key point}: If an airway of the tracheo-bronchial tree is obstructed, the related supplied region will require more effort to strecth, even if its elastic properties are not affected. Hence, the parenchyma and the tree model needs to be mechanically coupled.
 \end{mdframed}
+Hook's law of an isotropic material:
+$$\sigma (\textbf{u}) = 2\mu \epsilon (\textbf{u}) + \lambda tr(\epsilon (\textbf{u}))I$$
+Let's be $\Omega = \bigcup^{N}_{i=1}\Omega_i$ and $\forall i,j : \Omega_i \cap\Omega_j = \oslash$ and $\Omega_i(t)$ the image of $\Omega_i$ through the transformation $I + \textbf{u}(x,t)$.
 
+Because we are in the hyphothesis of incompressible fluid and rigid walls (at a microscopic level the lung can be approximated to be rigid) we have that $ Q_i = \dot{V_i}$, moreover under the hyphotesis of small displacements we also have:
+\begin{equation}
+Q_i(\dot{\textbf{u}}) = \int_{\partial\Omega_i(t)}\dot{\textbf{u}}\cdot\textbf{n}(t)\approx \int_{\partial\Omega_i}\dot{\textbf{u}}\cdot\textbf{n}
+\end{equation}
+We define the following terms related to the energy:
+\begin{itemize}
+\item Power lost:
+\begin{equation}
+F = \frac{1}{2}\cdot{}^TQ(\dot{\textbf{u}})AQ(\dot{\textbf{u}})
+\end{equation}
+\item Kinetic energy: 
+\begin{equation}
+E_c = \frac{1}{2}\int_\Omega{\rho_{par}|\dot{\textbf{u}}}|^2
+\end{equation}
+\item Potential energy:
+\begin{equation}
+E_p = \frac{1}{2}\int_\Omega\sigma_{mat}(\textbf{u}):\epsilon(\textbf{u}) - \int_\Omega\rho_{par}\textbf{g}\cdot \textbf{u}
+\end{equation}
+where : indicates the contraction operation between tensors.
+\item Work done by chest and diaphragm:
+ \begin{equation}
+ H = \int_{\partial\Omega}\textbf{f}\cdot \textbf{u} + P_{trachea}\int_{\partial\Omega}\textbf{n}\cdot\textbf{u}
+ \end{equation}
+\end{itemize}
 \end{document}
