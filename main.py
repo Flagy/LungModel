@@ -5,12 +5,12 @@ from UsefulFunctions import solveAndPlot
 f = 0.25 # 15 breaths per minute --> 1 breath every 4 seconds --> 0.25 Hz
 t = np.arange(0, 60, 0.01) # start, stop, step: be sure step is ok with frequency
 R = (843, 700e3, 500e3)
-C = (100e-6, 1e-6)
+C = (10e-6, 10e-6)
 lung = EasyLung(R, C)
 # forzante = 5*(np.cos(2*pi*f*t) + 1j*np.sin(2*pi*f*t)) # Voltage
-phi = pi/2
-forzante = 250*np.exp(-1j*2*pi*f*t + 1j*phi) # complex sin # Voltage
-# forzante = 500*np.sin(2*pi*f*t + phi)
+phi = pi/11
+# forzante = 125 + 125*np.exp(-1j*2*pi*f*t + 1j*phi) # complex sin # Voltage
+forzante = 125 + 125*np.cos(2*pi*f*t + phi)
 i0, i1, i2 = lung.LaplaceSolution(f, forzante)
 plt.subplot(211)
 plt.plot(t, forzante)
